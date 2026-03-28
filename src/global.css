@@ -1,21 +1,37 @@
+:root {
+  --app-viewport-height: 100dvh;
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-safe-top: env(safe-area-inset-top, 0px);
+}
+
 :root[data-mantine-color-scheme="dark"] {
   --mantine-color-body: #06060a;
 }
 
-html,
-body,
-#root {
-  min-height: 100%;
+html {
+  height: 100%;
 }
 
 body {
   color-scheme: dark;
+  margin: 0;
+  min-height: 100%;
+  min-height: var(--app-viewport-height);
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100%;
+  min-height: var(--app-viewport-height);
 }
 
 .page-bg {
   position: relative;
   isolation: isolate;
-  min-height: 100vh;
+  min-height: var(--app-viewport-height);
+  min-height: 100dvh;
   background-color: #06060a;
   background-image:
     radial-gradient(ellipse 120% 80% at 50% -30%, var(--mesh-a, #5b21b640), transparent 55%),
@@ -54,4 +70,9 @@ body {
   opacity: 0.045;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Telegram Mini App: высоту задаёт initTelegramWebApp через --app-viewport-height */
+html.tg-webapp body {
+  overscroll-behavior-y: none;
 }

@@ -7,7 +7,7 @@ import {
   ThemeIcon,
   rem,
 } from "@mantine/core";
-import { useHover } from "@mantine/hooks";
+import { useHover, useMediaQuery } from "@mantine/hooks";
 import { IconArrowRight, type TablerIcon } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
@@ -22,6 +22,8 @@ export type TopicCardProps = {
 export function TopicCard(props: TopicCardProps) {
   const { hovered, ref } = useHover();
   const Icon = props.icon;
+  const canFineHover = useMediaQuery("(hover: hover) and (pointer: fine)");
+  const lift = Boolean(canFineHover && hovered);
 
   const card = (
     <Card
@@ -33,12 +35,14 @@ export function TopicCard(props: TopicCardProps) {
         border: "1px solid rgba(255, 255, 255, 0.08)",
         background:
           "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-        boxShadow: hovered
+        boxShadow: lift
           ? `0 0 0 1px ${props.accent}55, 0 24px 48px -12px rgba(0,0,0,0.65)`
           : "0 16px 40px -20px rgba(0,0,0,0.55)",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        transform: lift ? "translateY(-4px)" : "translateY(0)",
         transition: "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
         cursor: props.to ? "pointer" : undefined,
+        touchAction: props.to ? "manipulation" : undefined,
+        WebkitTapHighlightColor: "transparent",
       }}
     >
       <Box
@@ -68,8 +72,8 @@ export function TopicCard(props: TopicCardProps) {
             size={20}
             stroke={1.5}
             style={{
-              opacity: hovered ? 1 : 0.35,
-              transform: hovered ? "translateX(4px)" : "translateX(0)",
+              opacity: lift ? 1 : 0.35,
+              transform: lift ? "translateX(4px)" : "translateX(0)",
               transition: "opacity 180ms ease, transform 180ms ease",
               color: "var(--mantine-color-gray-5)",
             }}

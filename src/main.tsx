@@ -5,7 +5,10 @@ import "@mantine/core/styles.css";
 import { MantineProvider } from "@mantine/core";
 import "./global.css";
 import { appTheme } from "./theme";
+import { initTelegramWebApp } from "./telegram/initTelegramWebApp";
 import App from "./App";
+
+initTelegramWebApp();
 
 const root = document.getElementById("root");
 if (!root) {
