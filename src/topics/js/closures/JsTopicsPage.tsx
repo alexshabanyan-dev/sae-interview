@@ -13,6 +13,9 @@ import {
   IconArrowLeft,
   IconBrandJavascript,
   IconBraces,
+  IconGitBranch,
+  IconLink,
+  IconBolt,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { TopicCard } from "../../../components/TopicCard";
@@ -25,6 +28,30 @@ const jsTopics = [
     icon: IconBraces,
     accent: "#fbbf24",
     to: "/topics/js/closures",
+  },
+  {
+    title: "Event Loop",
+    description:
+      "Синхронный код, микро- и макрозадачи, async/await и порядок вывода в консоль.",
+    icon: IconGitBranch,
+    accent: "#22d3ee",
+    to: "/topics/js/event-loop",
+  },
+  {
+    title: "this и call / apply / bind",
+    description:
+      "Неявная и явная привязка, стрелки, классы, конструктор и потеря контекста.",
+    icon: IconLink,
+    accent: "#a78bfa",
+    to: "/topics/js/this",
+  },
+  {
+    title: "Промисы и async/await",
+    description:
+      "then/catch/finally, all, race, any, типичные цепочки и ошибки.",
+    icon: IconBolt,
+    accent: "#fb7185",
+    to: "/topics/js/promises",
   },
 ];
 

@@ -1,19 +1,6 @@
-export function createCounter(init = 0) {
-  let current = init;
+export const addTwoPromises = async function (promise1, promise2) {
+  // Ваше решение
+};
 
-  function increment() {
-    current += 1;
-    return current;
-  }
-
-  function decrement() {
-    current -= 1;
-    return current;
-  }
-
-  return { increment, decrement };
-}
-
-const counter = createCounter(5);
-console.log(counter.increment()); // 6
-console.log(counter.decrement()); // 5
+const test = addTwoPromises(Promise.reject(3), Promise.resolve(2));
+console.log("🚀 ~ test:", test);

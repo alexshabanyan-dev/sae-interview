@@ -1,15 +1,8 @@
-export type ClosureTask = {
-  id: string;
-  prompt: string;
-  code?: string;
-  answer: string;
-  explanation: string;
-  solutionCode?: string;
-  answerSectionTitle?: string;
-  explanationSectionTitle?: string;
-};
+import type { JsTopicTask } from "../jsTopicTypes";
 
-export const CLOSURE_TASKS: ClosureTask[] = [
+export type ClosureTask = JsTopicTask;
+
+export const CLOSURE_TASKS: JsTopicTask[] = [
   {
     id: "t1",
     prompt: "Что выведет код? Объясни через замыкание.",

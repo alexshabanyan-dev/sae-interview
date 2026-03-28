@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import {
   Accordion,
   Alert,
@@ -13,45 +12,22 @@ import {
   Table,
   Text,
   Title,
-  ThemeIcon,
   rem,
 } from "@mantine/core";
 import { IconArrowLeft, IconBook, IconBulb } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { CodeBlock } from "../../../components/CodeBlock";
-import { CLOSURE_TASKS, type ClosureTask } from "./closureTasks";
-import { RichText } from "./closureTaskRichText";
-
-function ClosureTaskPanel({ task }: { task: ClosureTask }) {
-  const hasSolution = Boolean(task.solutionCode);
-
-  return (
-    <Stack gap="md">
-      <div>
-        <Text fw={600} c="gray.2" size="sm" mb={6}>
-          {task.answerSectionTitle ?? "Ответ"}
-        </Text>
-        <RichText>{task.answer}</RichText>
-      </div>
-      {hasSolution ? (
-        <div>
-          <Text fw={600} c="gray.2" size="sm" mb={6}>
-            Пример решения
-          </Text>
-          <CodeBlock>{task.solutionCode!}</CodeBlock>
-          <RichText>{task.explanation}</RichText>
-        </div>
-      ) : (
-        <div>
-          <Text fw={600} c="gray.2" size="sm" mb={6}>
-            {task.explanationSectionTitle ?? "Разбор"}
-          </Text>
-          <RichText>{task.explanation}</RichText>
-        </div>
-      )}
-    </Stack>
-  );
-}
+import {
+  JsTopicFoldableSection,
+  JsTopicGroupTitle,
+  JsTopicInterviewQaSection,
+  JsTopicSection,
+  JsTopicTaskPanel,
+  jsTopicAccordionStyles,
+} from "../JsTopicDetailLayout";
+import { CLOSURE_TASKS } from "./closureTasks";
+import { CLOSURES_INTERVIEW_QA } from "./closuresInterviewQa";
+import { RichText } from "../richText";
 
 export function ClosuresPage() {
   return (
@@ -92,7 +68,7 @@ export function ClosuresPage() {
         </Group>
 
         <Stack gap="xs">
-          <GroupTitle icon={IconBook} label="JavaScript" />
+          <JsTopicGroupTitle icon={IconBook} label="JavaScript" />
           <Title order={1} c="gray.0" style={{ letterSpacing: "-0.03em" }}>
             Замыкания (closures)
           </Title>
@@ -102,7 +78,7 @@ export function ClosuresPage() {
           </Text>
         </Stack>
 
-        <Section title="1. Определение простыми словами">
+        <JsTopicSection title="1. Определение простыми словами">
           <Text c="gray.2" lh={1.75}>
             <strong>Замыкание</strong> — это способность функции «помнить»
             окружение, в котором она была <em>создана</em>, и обращаться к
@@ -119,9 +95,9 @@ export function ClosuresPage() {
             Замыкание = функция + окружение (лексическое окружение), с которым
             эта функция была создана и к которому у неё есть доступ при вызове.
           </Alert>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="2. Зачем это в языке">
+        <JsTopicSection title="2. Зачем это в языке">
           <List spacing="sm" c="gray.3" size="sm">
             <List.Item>
               Скрывать данные (имитация «приватных» полей без классов).
@@ -137,9 +113,9 @@ export function ClosuresPage() {
               места создания.
             </List.Item>
           </List>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="3. Лексическое окружение и цепочка областей">
+        <JsTopicSection title="3. Лексическое окружение и цепочка областей">
           <Text c="gray.2" lh={1.75}>
             В JavaScript у каждой области видимости (глобальной, функции, блока{" "}
             <Code>{}</Code> для <Code>let</Code>/<Code>const</Code>) есть{" "}
@@ -155,9 +131,9 @@ export function ClosuresPage() {
             лексическое окружение. Именно поэтому внутренняя функция «видит»
             переменные снаружи.
           </Text>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="4. Минимальный пример">
+        <JsTopicSection title="4. Минимальный пример">
           <CodeBlock>{`
 function outer() {
   const secret = 42;
@@ -174,9 +150,9 @@ console.log(get()); // 42
             <Code>secret</Code> не «исчезает» для <Code>inner</Code>: на неё всё
             ещё ссылается живая функция <Code>get</Code>.
           </Text>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="5. Фабрика и «частичное» состояние">
+        <JsTopicSection title="5. Фабрика и «частичное» состояние">
           <CodeBlock>{`
 function createMultiplier(factor) {
   return function (n) {
@@ -195,9 +171,9 @@ triple(5); // 15 — другое замыкание
             своим <Code>factor</Code>, поэтому <Code>double</Code> и{" "}
             <Code>triple</Code> не делят одну переменную.
           </Text>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="6. Классическая ловушка: цикл и var">
+        <JsTopicSection title="6. Классическая ловушка: цикл и var">
           <Text c="gray.2" lh={1.75}>
             С <Code>var</Code> переменная в цикле одна на все итерации, и
             колбэки часто видят уже финальное значение счётчика.
@@ -221,9 +197,9 @@ for (let i = 0; i < 3; i++) {
 }
 console.log(fnsOk.map((fn) => fn())); // [0, 1, 2]
 `}</CodeBlock>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="7. Модульный паттерн (приватность)">
+        <JsTopicSection title="7. Модульный паттерн (приватность)">
           <CodeBlock>{`
 function createCounter(initial = 0) {
   let value = initial;
@@ -249,9 +225,9 @@ c.inc(); // 11
             ответ, как в JS реализовать инкапсуляцию без <Code>private</Code> в
             старых версиях или в учебных примерах.
           </Text>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="8. Замыкание и async">
+        <JsTopicSection title="8. Замыкание и async">
           <Text c="gray.2" lh={1.75}>
             После <Code>await</Code> функция может продолжить работу, но она
             по-прежнему та же функция с тем же окружением — замыкания не
@@ -261,9 +237,9 @@ c.inc(); // 11
             на момент создания», если только ты сам не скопировал примитив в
             локальную константу.
           </Text>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="9. Память и утечки">
+        <JsTopicSection title="9. Память и утечки">
           <Text c="gray.2" lh={1.75}>
             Пока на функцию есть ссылка, живёт и связанное с ней окружение
             (включая большие переменные). Поэтому важно: не хранить в замыкании
@@ -271,9 +247,9 @@ c.inc(); // 11
             оставлять глобальные ссылки на тяжёлые объекты, если они больше не
             нужны.
           </Text>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="10. Частые вопросы на интервью">
+        <JsTopicSection title="10. Частые вопросы на интервью">
           <Table
             striped
             highlightOnHover
@@ -316,25 +292,21 @@ c.inc(); // 11
               </Table.Tr>
             </Table.Tbody>
           </Table>
-        </Section>
+        </JsTopicSection>
 
-        <Section title="11. Задачи для практики (50 шт.)">
-          <Text c="dimmed" size="sm" mb="xs">
-            Условие видно сразу. Ответ и разбор — внутри: раскрой пункт, когда
-            захочешь проверить себя.
-          </Text>
+        <JsTopicFoldableSection
+          title="11. Задачи для практики (50 шт.)"
+          hint={
+            <Text c="dimmed" size="sm">
+              Условие видно сразу. Ответ и разбор — внутри: раскрой пункт, когда
+              захочешь проверить себя.
+            </Text>
+          }
+        >
           <Accordion
             variant="separated"
             radius="md"
-            styles={{
-              item: {
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                background: "rgba(255, 255, 255, 0.02)",
-              },
-              control: { padding: `${rem(14)} ${rem(16)}` },
-              label: { color: "var(--mantine-color-gray-2)", fontWeight: 500 },
-              panel: { padding: `${rem(16)} ${rem(16)} ${rem(20)}` },
-            }}
+            styles={jsTopicAccordionStyles}
           >
             {CLOSURE_TASKS.map((task, index) => (
               <Accordion.Item key={task.id} value={task.id}>
@@ -350,14 +322,14 @@ c.inc(); // 11
                   </Stack>
                 </Accordion.Control>
                 <Accordion.Panel>
-                  <ClosureTaskPanel task={task} />
+                  <JsTopicTaskPanel task={task} />
                 </Accordion.Panel>
               </Accordion.Item>
             ))}
           </Accordion>
-        </Section>
+        </JsTopicFoldableSection>
 
-        <Section title="12. Шпаргалка одним абзацем">
+        <JsTopicSection title="12. Шпаргалка одним абзацем">
           <Paper
             p="lg"
             radius="md"
@@ -374,60 +346,21 @@ c.inc(); // 11
               замыкании продолжают занимать память, пока жива функция.
             </Text>
           </Paper>
-        </Section>
+        </JsTopicSection>
+
+        <JsTopicInterviewQaSection items={CLOSURES_INTERVIEW_QA} />
 
         <Divider
-          label={<GroupTitle icon={IconBulb} label="Дальше" />}
+          label={<JsTopicGroupTitle icon={IconBulb} label="Дальше" />}
           labelPosition="center"
           styles={{ label: { color: "var(--mantine-color-gray-5)" } }}
         />
 
         <Text size="sm" c="dimmed" ta="center">
-          Добавь в <Code>src/topics/js/</Code> новые файлы страниц и маршруты в{" "}
-          <Code>App.tsx</Code>, когда будешь готов расширять курс.
+          См. также темы: Event Loop, <Code>this</Code>, промисы и{" "}
+          <Code>async/await</Code> в разделе JavaScript.
         </Text>
       </Stack>
     </Container>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <Stack gap="md">
-      <Title
-        order={2}
-        c="gray.1"
-        style={{ letterSpacing: "-0.02em" }}
-        size="h3"
-      >
-        {title}
-      </Title>
-      {children}
-    </Stack>
-  );
-}
-
-function GroupTitle({
-  icon: Icon,
-  label,
-}: {
-  icon: React.ComponentType<{ size?: number; stroke?: number }>;
-  label: string;
-}) {
-  return (
-    <Group gap="xs" wrap="nowrap">
-      <ThemeIcon size="sm" variant="light" color="gray" radius="sm">
-        <Icon size={14} stroke={1.5} />
-      </ThemeIcon>
-      <Text
-        size="xs"
-        tt="uppercase"
-        fw={700}
-        c="dimmed"
-        style={{ letterSpacing: "0.08em" }}
-      >
-        {label}
-      </Text>
-    </Group>
   );
 }
