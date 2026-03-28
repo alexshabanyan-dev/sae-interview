@@ -19,7 +19,7 @@ export function ThisBindingPage() {
   return (
     <JsTopicDetailLayout
       title="Контекст выполнения: this"
-      subtitle="Подробная теория: виды привязки, strict и модули, call/apply/bind, new, прототипы, классы, стрелки, DOM и типичные ловушки на собесах."
+      subtitle="Подробная теория: приоритет правил, default/implicit/explicit/new, bind, super, defineProperty, globalThis, DOM, шпаргалка и задачи."
       tasks={THIS_BINDING_TASKS}
       interviewQuestions={THIS_BINDING_INTERVIEW_QA}
     >
@@ -298,7 +298,86 @@ f.call(window); // всё равно this === obj`}</CodeBlock>
 o.inner.show(); // "inner"`}</CodeBlock>
       </JsTopicSection>
 
-      <JsTopicSection title="13. Шпаргалка: что проверить на собесе">
+      <JsTopicSection title="13. Приоритет правил (что сильнее)">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Если несколько механизмов конкурируют, ориентир для обычных функций (
+          <strong>не</strong> стрелок):
+        </Text>
+        <List spacing="sm" c="gray.3" size="sm" type="ordered">
+          <List.Item>
+            <strong>new</strong> — создаёт свой <Code>this</Code> (если функция
+            допускает <Code>new</Code>).
+          </List.Item>
+          <List.Item>
+            <strong>Явная привязка</strong> — <Code>call</Code>, <Code>apply</Code>
+            ; <Code>bind</Code> «запечатывает» <Code>this</Code> и дальше{" "}
+            <Code>call</Code> на bound-функции его обычно не меняет.
+          </List.Item>
+          <List.Item>
+            <strong>Неявный вызов метода</strong> — <Code>obj.method()</Code>.
+          </List.Item>
+          <List.Item>
+            <strong>Default</strong> — просто <Code>f()</Code> (strict →{" "}
+            <Code>undefined</Code>, sloppy → часто глобал).
+          </List.Item>
+        </List>
+        <Text c="gray.3" size="sm" mt="sm">
+          Стрелка игнорирует эту цепочку и всегда смотрит на лексический{" "}
+          <Code>this</Code> снаружи.
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="14. super, классы и this">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          В методах класса <Code>super</Code> ссылается на прототип родителя для
+          вызова методов родителя. <Code>this</Code> при этом остаётся{" "}
+          <strong>текущим экземпляром</strong> при вызове <Code>super.m()</Code> из
+          метода экземпляра.
+        </Text>
+        <List spacing="sm" c="gray.3" size="sm">
+          <List.Item>
+            <strong>Поле-стрелка</strong> в подклассе <strong>не может</strong>{" "}
+            содержать <Code>super</Code> для вызова методов как у обычного метода —
+            у стрелки нет собственного <Code>super</Code>-механизма метода; для{" "}
+            <Code>super</Code> в теле класса используют обычные методы или явные
+            привязки (на собесе это частый «подводный» факт).
+          </List.Item>
+          <List.Item>
+            Статические методы используют <Code>this</Code> как конструктор класса,
+            если вызываются как <Code>Sub.static()</Code> — контекст другой, чем у
+            экземпляра.
+          </List.Item>
+        </List>
+      </JsTopicSection>
+
+      <JsTopicSection title="15. Object.defineProperty и функция как value">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Если метод записан как обычное data-свойство через{" "}
+          <Code>Object.defineProperty</Code> с полем <Code>value: function () {"{"} … {"}"}</Code>{" "}
+          и затем вызвать <Code>obj.m()</Code>, внутри <Code>this</Code> обычно
+          будет <Code>obj</Code> — как при методе в литерале. С геттерами/сеттерами
+          и со снятой ссылкой на функцию поведение проверяй отдельно.
+        </Text>
+        <Text c="gray.3" size="sm">
+          На собесе реже, чем классы и стрелки, но полезно помнить: привязка всё
+          равно определяется <strong>вызовом</strong>, а не только тем, как
+          свойство объявлено.
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="16. globalThis и единообразие сред">
+        <Text c="gray.2" lh={1.75}>
+          <Code>globalThis</Code> — стандартное имя глобального объекта в браузере,
+          Node и других средах. В учебных примерах со sloppy mode и{" "}
+          <Code>this</Code> «вне всего» иногда путают <Code>window</Code>,{" "}
+          <Code>global</Code> и <Code>globalThis</Code> — для ответа на собесе
+          лучше сказать: «в модуле strict <Code>this</Code> при прямом вызове —
+          undefined; глобальный объект — через <Code>globalThis</Code>, а не
+          через произвольный <Code>this</Code>».
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="17. Шпаргалка: что проверить на собесе">
         <Table
           striped
           withTableBorder

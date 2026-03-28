@@ -19,7 +19,7 @@ export function PromisesPage() {
   return (
     <JsTopicDetailLayout
       title="Промисы и async/await"
-      subtitle="Подробная теория: состояния, executor, цепочки then/catch/finally, статические методы, async/await как сахар, микрозадачи и частые ловушки. Ниже — задачи на закрепление."
+      subtitle="Подробная теория: состояния, thenable, цепочки, finally, комбинаторы, async/await, отмена через AbortController, Promise.withResolvers, ловушки. Ниже — задачи."
       tasks={PROMISES_TASKS}
       interviewQuestions={PROMISES_INTERVIEW_QA}
     >
@@ -59,7 +59,7 @@ export function PromisesPage() {
 
       <JsTopicSection title="3. Создание: new Promise и синхронный executor">
         <Text c="gray.2" lh={1.75}>
-          Конструктор <Code>new Promise((resolve, reject) =&gt; …)</Code> вызывает
+          Конструктор <Code>{"new Promise((resolve, reject) => …)"}</Code> вызывает
           функцию-executor <strong>сразу и синхронно</strong> (до того, как дойдёт
           код после <Code>new Promise</Code>). Внутри executor ты
           запускаешь асинхронщину и по готовности вызываешь{" "}
@@ -246,12 +246,55 @@ console.log("D");
         <Text c="gray.2" lh={1.75} mt="sm">
           Для «первого успешного из нескольких запросов с таймаутом» часто
           комбинируют <Code>race</Code> с таймером-промисом или используют{" "}
-          <Code>AbortController</Code> — промисы сами по себе не отменяют сетевой
-          запрос, это отдельная тема.
+          <Code>AbortController</Code> — см. отдельный раздел ниже: промис{" "}
+          <Code>fetch</Code> не отменяется сам по себе.
         </Text>
       </JsTopicSection>
 
-      <JsTopicSection title="9. async/await как синтаксический сахар">
+      <JsTopicSection title="9. Thenable и подхват (assimilation)">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Если в <Code>resolve</Code> или в возврате из <Code>then</Code> попадает
+          не промис, а объект с методом <Code>then</Code> (thenable), движок
+          пытается трактовать его как «почти промис» и <strong>подождать</strong>{" "}
+          его завершения — это называют подхватом или assimilation.
+        </Text>
+        <List spacing="sm" c="gray.3" size="sm">
+          <List.Item>
+            Так исторически стыковали чужие библиотеки и jQuery Deferred; ошибка
+            внутри чужого <Code>then</Code> может привести к{" "}
+            <Code>rejected</Code> вашей цепочки.
+          </List.Item>
+          <List.Item>
+            Если случайно вернуть объект с произвольным <Code>then</Code> (например,
+            от API), цепочка может «зависнуть» или вести себя неожиданно — на
+            продакшене thenable лучше не раздавать без нужды.
+          </List.Item>
+          <List.Item>
+            <Code>Promise.resolve(x)</Code> для не-примитива и не-Promise запускает
+            этот же механизм.
+          </List.Item>
+        </List>
+      </JsTopicSection>
+
+      <JsTopicSection title="10. finally: когда результат цепочки меняется">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          <Code>finally</Code> по умолчанию <strong>пробрасывает</strong> предыдущее
+          fulfilled/rejected значение дальше. Но если <Code>finally</Code>{" "}
+          <strong>возвращает промис</strong>, исход этого промиса становится
+          исходом для следующего <Code>then</Code> — можно случайно «затереть»
+          успех ошибкой или наоборот.
+        </Text>
+        <CodeBlock>{`Promise.resolve(1)
+  .finally(() => Promise.reject("oops"))
+  .catch((e) => console.log(e)); // oops — отклонение из finally`}</CodeBlock>
+        <Text c="gray.3" size="sm" mt="sm">
+          Если нужно только «почистить» ресурсы, часто возвращают из{" "}
+          <Code>finally</Code> пустой <Code>return;</Code> или{" "}
+          <Code>return undefined;</Code>, не возвращая новый промис без необходимости.
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="11. async/await как синтаксический сахар">
         <List spacing="sm" c="gray.3" size="sm">
           <List.Item>
             Функция с <Code>async</Code> <strong>всегда</strong> возвращает
@@ -282,7 +325,41 @@ console.log("D");
         </Alert>
       </JsTopicSection>
 
-      <JsTopicSection title="10. Частые ошибки">
+      <JsTopicSection title="12. Отмена операций: AbortController и fetch">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Объект <Code>AbortController</Code> даёт <Code>signal</Code>, который
+          передают во второй аргумент <Code>fetch</Code> (поле{" "}
+          <Code>signal</Code>). Вызов{" "}
+          <Code>controller.abort()</Code> <strong>прерывает сетевой запрос</strong>{" "}
+          и отклоняет промис <Code>fetch</Code> с ошибкой (обычно{" "}
+          <Code>AbortError</Code>). Сам по себе промис «не умеет отменяться» — отмена
+          встроена в конкретные API, которые сигнал понимают.
+        </Text>
+        <List spacing="sm" c="gray.3" size="sm">
+          <List.Item>
+            Таймаут часто делают через <Code>AbortSignal.timeout(ms)</Code> (в
+            современных средах) или комбинацию <Code>setTimeout</Code> +{" "}
+            <Code>abort()</Code>.
+          </List.Item>
+          <List.Item>
+            Для собственных асинхронных функций отмену проектируют явно (флаг,
+            сигнал, разрыв подписки) — не жди магии от одного только{" "}
+            <Code>Promise</Code>.
+          </List.Item>
+        </List>
+      </JsTopicSection>
+
+      <JsTopicSection title="13. Promise.withResolvers (современные движки)">
+        <Text c="gray.2" lh={1.75}>
+          <Code>Promise.withResolvers()</Code> возвращает объект с полями{" "}
+          <Code>promise</Code>, <Code>resolve</Code>, <Code>reject</Code> — удобно,
+          когда обработчики нужны снаружи (события, обёртки над колбэковым API)
+          без ручного <Code>{"let r; new Promise((res) => { r = res; })"}</Code>.
+          В старых средах — полифилл или классический паттерн.
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="14. Частые ошибки">
         <Stack gap="md">
           <Alert color="orange" variant="light" title="Забытый return в then">
             Внутри <Code>then</Code> вызов <Code>p.then(...)</Code> без{" "}
@@ -297,7 +374,7 @@ console.log("D");
           </Alert>
           <Alert color="grape" variant="light" title="Антипаттерн Promise constructor">
             Оборачивать уже существующий промис в{" "}
-            <Code>new Promise((res) =&gt; res(otherPromise))</Code> обычно не
+            <Code>{"new Promise((res) => res(otherPromise))"}</Code> обычно не
             нужно — достаточно вернуть <Code>otherPromise</Code>. Конструктор
             полезен для API без промисов (колбэки, события).
           </Alert>

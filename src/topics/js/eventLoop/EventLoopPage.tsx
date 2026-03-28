@@ -19,7 +19,7 @@ export function EventLoopPage() {
   return (
     <JsTopicDetailLayout
       title="Event Loop и очереди задач"
-      subtitle="Подробная теория: стек вызовов, микро- и макрозадачи, промисы, async/await, рендер в браузере, отличия Node.js, ловушки и шпаргалка. Ниже — задачи."
+      subtitle="Подробная теория: стек, микро- и макрозадачи, пошаговый разбор кода, queueMicrotask, рендер и кадр, фазы Node, starvation, шпаргалка. Ниже — задачи."
       tasks={EVENT_LOOP_TASKS}
       interviewQuestions={EVENT_LOOP_INTERVIEW_QA}
     >
@@ -228,7 +228,146 @@ console.log("D");
         </Stack>
       </JsTopicSection>
 
-      <JsTopicSection title="13. Шпаргалка порядка (браузер, учебная модель)">
+      <JsTopicSection title="13. Пошаговый разбор (запоминание порядка)">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Алгоритм для учебной модели браузера: <strong>1)</strong> выполнить весь
+          текущий синхронный JS до пустого стека; <strong>2)</strong> пока очередь
+          микрозадач не пуста — снять задачу, выполнить, возможно добавятся новые
+          микро — повторять; <strong>3)</strong> взять <strong>одну</strong>{" "}
+          макрозадачу и выполнить; <strong>4)</strong> снова пункт 2; цикл.
+        </Text>
+        <CodeBlock>{`console.log("1");
+setTimeout(() => console.log("2"), 0);
+Promise.resolve().then(() => console.log("3"));
+queueMicrotask(() => console.log("4"));
+console.log("5");
+
+// 1, 5 — синхронно
+// вывод: 1, 5, 3, 4, 2 — микро в порядке постановки (then раньше queueMicrotask)
+// затем одна макрозадача таймера`}</CodeBlock>
+        <Text c="gray.3" size="sm" mt="sm">
+          Точный порядок <Code>then</Code> vs <Code>queueMicrotask</Code> в одном
+          синхронном «куске» совпадает с порядком <strong>регистрации</strong> в
+          очередь; оба идут раньше любого <Code>setTimeout</Code>.
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="14. queueMicrotask и Promise.then: когда что писать">
+        <List spacing="sm" c="gray.3" size="sm">
+          <List.Item>
+            По смыслу оба попадают в <strong>одну микроочередь</strong> — порядок
+            относительно друг друга обычно «кто раньше поставил — тот раньше
+            выполнится» в рамках одного прохода.
+          </List.Item>
+          <List.Item>
+            <Code>queueMicrotask</Code> удобен, когда нет естественного промиса:
+            нужно отложить работу после синхронного кода, но до макрозадач, без
+            обёртки в <Code>Promise.resolve().then</Code>.
+          </List.Item>
+          <List.Item>
+            <Code>then</Code> логичен в цепочке асинхронной логики и когда уже
+            работаешь с промисами; читаемость для команды часто важнее микроскопической
+            разницы API.
+          </List.Item>
+        </List>
+      </JsTopicSection>
+
+      <JsTopicSection title="15. Браузер: где в модели отрисовка">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Пока на стеке крутится тяжёлый синхронный скрипт, браузер{" "}
+          <strong>не рисует</strong> промежуточные изменения DOM — пользователь
+          видит «подвисание». После освобождения потока и между задачами цикла
+          движок может выполнить стили, лейаут и отрисовку (упрощённо: «рендер
+          между задачами, не внутри синхронной функции»).
+        </Text>
+        <Alert color="blue" variant="light">
+          <Text size="sm" lh={1.65}>
+            Если нужно не блокировать UI при тяжёлой работе — дробить на куски (
+            <Code>requestIdleCallback</Code>, <Code>setTimeout(0)</Code>,{" "}
+            <Code>Worker</Code>), а не полагаться на микрозадачи: они всё равно
+            идут на том же главном потоке.
+          </Text>
+        </Alert>
+      </JsTopicSection>
+
+      <JsTopicSection title="16. Node.js: фазы libuv (шпаргалка)">
+        <Text c="gray.2" lh={1.75} mb="sm">
+          Упрощённая карта: между фазами почти всегда сначала{" "}
+          <Code>process.nextTick</Code>, затем <strong>микрозадачи промисов</strong>
+          , затем продолжение текущей фазы / следующая фаза.
+        </Text>
+        <Table
+          striped
+          withTableBorder
+          styles={{
+            th: { color: "var(--mantine-color-gray-4)" },
+            td: { color: "var(--mantine-color-gray-3)", fontSize: rem(13) },
+          }}
+        >
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Фаза / очередь</Table.Th>
+              <Table.Th>Примеры</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            <Table.Tr>
+              <Table.Td>
+                <Code>nextTick</Code>
+              </Table.Td>
+              <Table.Td>
+                Высший приоритет «между» шагами; рекурсивный nextTick может
+                откладывать I/O
+              </Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td>Микрозадачи</Table.Td>
+              <Table.Td>
+                <Code>Promise</Code> then/catch/finally после nextTick
+              </Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td>Timers</Table.Td>
+              <Table.Td>
+                <Code>setTimeout</Code> / <Code>setInterval</Code> (по расписанию
+                фазы)
+              </Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td>Poll</Table.Td>
+              <Table.Td>I/O, часть сетевых колбэков; может ждать событий</Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td>Check</Table.Td>
+              <Table.Td>
+                <Code>setImmediate</Code>
+              </Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td>Close</Table.Td>
+              <Table.Td>Закрытие сокетов и т.п.</Table.Td>
+            </Table.Tr>
+          </Table.Tbody>
+        </Table>
+        <Text c="gray.3" size="sm" mt="sm">
+          Для продакшена важнее практика: не злоупотреблять nextTick, логировать
+          порядок при отладке, не смешивать ментальную модель браузера и Node без
+          пометки «где мы сейчас».
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="17. MutationObserver, MessageChannel">
+        <Text c="gray.2" lh={1.75}>
+          <Code>MutationObserver</Code> в браузере планирует колбэки как{" "}
+          <strong>микрозадачи</strong> после мутаций DOM (в общих чертах — снова
+          раньше макрозадач). <Code>MessageChannel</Code> иногда используют как
+          обходной путь для «микроподобного» планирования в старых средах; в
+          современном коде чаще <Code>queueMicrotask</Code> или промисы. На собесе
+          достаточно знать: «не только then кладёт работу в микроочередь».
+        </Text>
+      </JsTopicSection>
+
+      <JsTopicSection title="18. Шпаргалка порядка (браузер, учебная модель)">
         <Table
           striped
           withTableBorder
