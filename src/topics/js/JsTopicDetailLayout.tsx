@@ -131,19 +131,20 @@ export function JsTopicSection({
 
 export function JsTopicInterviewQaSection({
   items,
+  foldTitle = "Частые вопросы на собеседованиях",
+  foldHint = (
+    <Text c="dimmed" size="sm">
+      Вопрос — в заголовке аккордеона. Ответ — внутри после раскрытия.
+    </Text>
+  ),
 }: {
   items: JsTopicInterviewQa[];
+  foldTitle?: string;
+  foldHint?: ReactNode;
 }) {
   if (items.length === 0) return null;
   return (
-    <JsTopicFoldableSection
-      title="Частые вопросы на собеседованиях"
-      hint={
-        <Text c="dimmed" size="sm">
-          Вопрос — в заголовке аккордеона. Ответ — внутри после раскрытия.
-        </Text>
-      }
-    >
+    <JsTopicFoldableSection title={foldTitle} hint={foldHint}>
       <Accordion
         variant="separated"
         radius="md"
@@ -201,21 +202,42 @@ export function JsTopicGroupTitle({
   );
 }
 
+type TopicDetailBackLink = { to: string; label: string };
+
+const defaultBackTo: TopicDetailBackLink = {
+  to: "/topics/js",
+  label: "К темам JavaScript",
+};
+
 export function JsTopicDetailLayout({
   title,
   subtitle,
   tasks,
   taskSectionTitle,
   interviewQuestions,
+  interviewQaFoldTitle,
+  interviewQaFoldHint,
+  backTo = defaultBackTo,
+  groupLabel = "JavaScript",
+  groupIcon: GroupIcon = IconBook,
   children,
 }: {
   title: string;
   subtitle: string;
-  tasks: JsTopicTask[];
+  /** Если не передан или пустой — блок задач не показывается. */
+  tasks?: JsTopicTask[];
   taskSectionTitle?: string;
   interviewQuestions?: JsTopicInterviewQa[];
+  interviewQaFoldTitle?: string;
+  interviewQaFoldHint?: ReactNode;
+  backTo?: TopicDetailBackLink;
+  groupLabel?: string;
+  groupIcon?: React.ComponentType<{ size?: number; stroke?: number }>;
   children: ReactNode;
 }) {
+  const taskList = tasks ?? [];
+  const showTasks = taskList.length > 0;
+
   return (
     <Container
       size="md"
@@ -227,7 +249,7 @@ export function JsTopicDetailLayout({
         <Group gap="lg" wrap="wrap">
           <Anchor
             component={Link}
-            to="/topics/js"
+            to={backTo.to}
             c="dimmed"
             size="sm"
             style={{
@@ -238,7 +260,7 @@ export function JsTopicDetailLayout({
             }}
           >
             <IconArrowLeft size={16} stroke={1.5} />
-            К темам JavaScript
+            {backTo.label}
           </Anchor>
           <Text size="sm" c="dimmed" style={{ opacity: 0.45 }}>
             ·
@@ -255,7 +277,7 @@ export function JsTopicDetailLayout({
         </Group>
 
         <Stack gap="xs">
-          <JsTopicGroupTitle icon={IconBook} label="JavaScript" />
+          <JsTopicGroupTitle icon={GroupIcon} label={groupLabel} />
           <Title order={1} c="gray.0" style={{ letterSpacing: "-0.03em" }}>
             {title}
           </Title>
@@ -266,43 +288,49 @@ export function JsTopicDetailLayout({
 
         {children}
 
-        <JsTopicFoldableSection
-          title={taskSectionTitle ?? "Задачи для практики (50 шт.)"}
-          hint={
-            <Text c="dimmed" size="sm">
-              Условие — в заголовке аккордеона. Ответ и разбор — внутри после
-              раскрытия.
-            </Text>
-          }
-        >
-          <Accordion
-            variant="separated"
-            radius="md"
-            styles={jsTopicAccordionStyles}
+        {showTasks ? (
+          <JsTopicFoldableSection
+            title={taskSectionTitle ?? "Задачи для практики (50 шт.)"}
+            hint={
+              <Text c="dimmed" size="sm">
+                Условие — в заголовке аккордеона. Ответ и разбор — внутри после
+                раскрытия.
+              </Text>
+            }
           >
-            {tasks.map((task, index) => (
-              <Accordion.Item key={task.id} value={task.id}>
-                <Accordion.Control>
-                  <Stack gap="xs">
-                    <Text size="sm" lh={1.55} c="gray.2" component="div">
-                      <strong>{index + 1}.</strong>{" "}
-                      <RichText component="span" c="gray.2" lh={1.55} size="sm">
-                        {task.prompt}
-                      </RichText>
-                    </Text>
-                    {task.code ? <CodeBlock>{task.code}</CodeBlock> : null}
-                  </Stack>
-                </Accordion.Control>
-                <Accordion.Panel>
-                  <JsTopicTaskPanel task={task} />
-                </Accordion.Panel>
-              </Accordion.Item>
-            ))}
-          </Accordion>
-        </JsTopicFoldableSection>
+            <Accordion
+              variant="separated"
+              radius="md"
+              styles={jsTopicAccordionStyles}
+            >
+              {taskList.map((task, index) => (
+                <Accordion.Item key={task.id} value={task.id}>
+                  <Accordion.Control>
+                    <Stack gap="xs">
+                      <Text size="sm" lh={1.55} c="gray.2" component="div">
+                        <strong>{index + 1}.</strong>{" "}
+                        <RichText component="span" c="gray.2" lh={1.55} size="sm">
+                          {task.prompt}
+                        </RichText>
+                      </Text>
+                      {task.code ? <CodeBlock>{task.code}</CodeBlock> : null}
+                    </Stack>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <JsTopicTaskPanel task={task} />
+                  </Accordion.Panel>
+                </Accordion.Item>
+              ))}
+            </Accordion>
+          </JsTopicFoldableSection>
+        ) : null}
 
         {interviewQuestions?.length ? (
-          <JsTopicInterviewQaSection items={interviewQuestions} />
+          <JsTopicInterviewQaSection
+            items={interviewQuestions}
+            foldTitle={interviewQaFoldTitle}
+            foldHint={interviewQaFoldHint}
+          />
         ) : null}
       </Stack>
     </Container>

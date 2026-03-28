@@ -36,6 +36,7 @@ const topics = [
     description: "HTTP, кэш, CORS, Storage, безопасность.",
     icon: IconWorldCode,
     accent: "#a78bfa",
+    to: "/topics/browser",
   },
   {
     title: "CSS и вёрстка",
