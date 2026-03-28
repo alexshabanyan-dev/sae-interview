@@ -14,7 +14,9 @@ if (!root) {
 
 createRoot(root).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter
+      basename={import.meta.env.BASE_URL.replace(/\/$/, "") || undefined}
+    >
       <MantineProvider defaultColorScheme="dark" theme={appTheme}>
         <App />
       </MantineProvider>
