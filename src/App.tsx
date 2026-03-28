@@ -7,6 +7,7 @@ import { PromisesPage } from "./topics/js/promises/PromisesPage";
 import { ThisBindingPage } from "./topics/js/thisBinding/ThisBindingPage";
 import { NetworkTopicsPage } from "./topics/browser/NetworkTopicsPage";
 import { HttpProtocolPage } from "./topics/browser/http/HttpProtocolPage";
+import { PageLoadPage } from "./topics/browser/pageLoad/PageLoadPage";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/topics/browser" element={<NetworkTopicsPage />} />
         <Route path="/topics/browser/http" element={<HttpProtocolPage />} />
+        <Route path="/topics/browser/page-load" element={<PageLoadPage />} />
         <Route path="/topics/js" element={<JsTopicsPage />} />
         <Route path="/topics/js/closures" element={<ClosuresPage />} />
         <Route path="/topics/js/event-loop" element={<EventLoopPage />} />

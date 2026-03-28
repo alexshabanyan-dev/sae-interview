@@ -9,7 +9,12 @@ import {
   ThemeIcon,
   rem,
 } from "@mantine/core";
-import { IconArrowLeft, IconCloudNetwork, IconWorldCode } from "@tabler/icons-react";
+import {
+  IconArrowLeft,
+  IconCloudNetwork,
+  IconRoute2,
+  IconWorldCode,
+} from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { TopicCard } from "../../components/TopicCard";
 
@@ -21,6 +26,14 @@ const networkTopics = [
     icon: IconCloudNetwork,
     accent: "#7dd3fc",
     to: "/topics/browser/http",
+  },
+  {
+    title: "От URL до пикселей",
+    description:
+      "Enter в адресной строке: DNS, сеть, TLS, парсинг HTML, рендер, compositor, DevTools.",
+    icon: IconRoute2,
+    accent: "#c4b5fd",
+    to: "/topics/browser/page-load",
   },
 ];
 
@@ -66,7 +79,7 @@ export function NetworkTopicsPage() {
                 Браузер и сеть
               </Title>
               <Text size="lg" c="dimmed" mt={rem(4)}>
-                HTTP, дальше — кэш, CORS, Storage и безопасность.
+                HTTP, загрузка страницы, дальше — кэш, CORS, Storage и безопасность.
               </Text>
             </div>
           </Group>
