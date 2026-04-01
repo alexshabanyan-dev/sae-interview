@@ -4,6 +4,9 @@ import { HomePage } from "./pages/HomePage";
 import { ClosuresPage, JsTopicsPage } from "./topics/js/closures";
 import { EventLoopPage } from "./topics/js/eventLoop/EventLoopPage";
 import { PromisesPage } from "./topics/js/promises/PromisesPage";
+import { MemoizationPage } from "./topics/js/memoization/MemoizationPage";
+import { CoercionPage } from "./topics/js/coercion/CoercionPage";
+import { ScopePage } from "./topics/js/scope/ScopePage";
 import { ThisBindingPage } from "./topics/js/thisBinding/ThisBindingPage";
 import { NetworkTopicsPage } from "./topics/browser/NetworkTopicsPage";
 import { HttpProtocolPage } from "./topics/browser/http/HttpProtocolPage";
@@ -22,6 +25,9 @@ export default function App() {
         <Route path="/topics/js/event-loop" element={<EventLoopPage />} />
         <Route path="/topics/js/this" element={<ThisBindingPage />} />
         <Route path="/topics/js/promises" element={<PromisesPage />} />
+        <Route path="/topics/js/memoization" element={<MemoizationPage />} />
+        <Route path="/topics/js/coercion" element={<CoercionPage />} />
+        <Route path="/topics/js/scope" element={<ScopePage />} />
       </Route>
     </Routes>
   );

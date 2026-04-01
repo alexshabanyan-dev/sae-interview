@@ -11,16 +11,35 @@ import {
 } from "@mantine/core";
 import {
   IconArrowLeft,
+  IconBookmark,
   IconBrandJavascript,
   IconBraces,
+  IconEqual,
   IconGitBranch,
   IconLink,
   IconBolt,
+  IconBrackets,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { TopicCard } from "../../../components/TopicCard";
 
 const jsTopics = [
+  {
+    title: "Типы и приведение",
+    description:
+      "Truthy/falsy, === и ==, Object.is, NaN, parseInt, классические ловушки собесов.",
+    icon: IconEqual,
+    accent: "#fde047",
+    to: "/topics/js/coercion",
+  },
+  {
+    title: "Область видимости",
+    description:
+      "var и let/const, блочная область, hoisting, TDZ, циклы, switch, catch, классы.",
+    icon: IconBrackets,
+    accent: "#a5b4fc",
+    to: "/topics/js/scope",
+  },
   {
     title: "Замыкания",
     description:
@@ -52,6 +71,14 @@ const jsTopics = [
     icon: IconBolt,
     accent: "#fb7185",
     to: "/topics/js/promises",
+  },
+  {
+    title: "Мемоизация и ...args",
+    description:
+      "Функция внутри memoize, rest/spread, замыкание и кэш, связь с useMemo/useCallback.",
+    icon: IconBookmark,
+    accent: "#86efac",
+    to: "/topics/js/memoization",
   },
 ];
 
