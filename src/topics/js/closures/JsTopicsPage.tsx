@@ -19,6 +19,7 @@ import {
   IconLink,
   IconBolt,
   IconBrackets,
+  IconMoodWink,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { TopicCard } from "../../../components/TopicCard";
@@ -31,6 +32,14 @@ const jsTopics = [
     icon: IconEqual,
     accent: "#fde047",
     to: "/topics/js/coercion",
+  },
+  {
+    title: "Странности и ловушки",
+    description:
+      "NaN, typeof null, массивы и ==, JSON, Date, RegExp, головоломки собесов — большой сборник.",
+    icon: IconMoodWink,
+    accent: "#f472b6",
+    to: "/topics/js/quirks",
   },
   {
     title: "Область видимости",

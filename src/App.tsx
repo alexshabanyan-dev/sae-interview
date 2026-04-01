@@ -7,6 +7,7 @@ import { PromisesPage } from "./topics/js/promises/PromisesPage";
 import { MemoizationPage } from "./topics/js/memoization/MemoizationPage";
 import { CoercionPage } from "./topics/js/coercion/CoercionPage";
 import { ScopePage } from "./topics/js/scope/ScopePage";
+import { QuirksPage } from "./topics/js/quirks/QuirksPage";
 import { ThisBindingPage } from "./topics/js/thisBinding/ThisBindingPage";
 import { NetworkTopicsPage } from "./topics/browser/NetworkTopicsPage";
 import { HttpProtocolPage } from "./topics/browser/http/HttpProtocolPage";
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/topics/js/memoization" element={<MemoizationPage />} />
         <Route path="/topics/js/coercion" element={<CoercionPage />} />
         <Route path="/topics/js/scope" element={<ScopePage />} />
+        <Route path="/topics/js/quirks" element={<QuirksPage />} />
       </Route>
     </Routes>
   );

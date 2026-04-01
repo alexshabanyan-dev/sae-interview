@@ -22,30 +22,7 @@ const FLIGHTS = {
 
 const fetchFlights = (from) => Promise.resolve(FLIGHTS[from]);
 
-export async function findPath(from, to, fetchFlights) {
-  async function dfs(current) {
-    if (current === to) {
-      return [current];
-    }
-
-    const neighbors = await fetchFlights(current);
-
-    if (!neighbors || !neighbors.length) return null;
-
-    for (const next of neighbors) {
-      const result = await dfs(next);
-
-      if (result) {
-        return [current, ...result];
-      }
-    }
-
-    return null;
-  }
-
-  const result = await dfs(from);
-  return result ?? [];
-}
+export async function findPath(from, to, fetchFlights) {}
 
 const test = await findPath("A", "S", fetchFlights);
-console.log("🚀 ~ test:", test);
+console.log("🚀 ~ test:", isFinite("8"));
